@@ -3,6 +3,7 @@ package ca.hullabaloo.data.list;
 import junit.framework.TestCase;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class SinglyLinkedListTest extends TestCase {
     private SinglyLinkedList<String> list = new SinglyLinkedList<String>();
@@ -90,6 +91,28 @@ public class SinglyLinkedListTest extends TestCase {
         assertEquals("C", list.get(1));
         assertEquals("B", list.get(2));
         assertEquals("A", list.get(3));
+    }
+
+    public void testMovingBeyondIteratorThrowsException() {
+        try {
+            list.iterator().next();
+            fail();
+        } catch (NoSuchElementException e) {
+            // expected
+        }
+    }
+
+    public void testMovingBeyondIteratorWithDataThrowsException() {
+        list.add("A");
+        Iterator<String> iter = list.iterator();
+        iter.next();
+        assertFalse(iter.hasNext());
+        try {
+            iter.next();
+            fail();
+        } catch (NoSuchElementException e) {
+            // expected
+        }
     }
 
     public void testGetWhenEmptyThrowsException() {
