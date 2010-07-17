@@ -30,6 +30,18 @@ public class IntHeap {
     }
 
     /**
+     * Adds an item to the list
+     */
+    public void add(int val) {
+        growIfNeeded();
+        int idx = size;
+        data[size++] = val;
+        while (idx > 0) {
+            idx = swapUp(idx);
+        }
+    }
+
+    /**
      * removes and returns the first element in the list
      */
     public int remove() {
@@ -42,6 +54,23 @@ public class IntHeap {
         return r;
     }
 
+    /**
+     * pulls an item up the tree to its proper spot
+     */
+    private int swapUp(int ci) {
+        int pi = parentIdx(ci);
+        int[] x = data;
+        if (x[ci] < x[pi]) {
+            swap(x, ci, pi);
+            return pi;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * pushes an item in the tree down to its proper slot
+     */
     private int swapDown(int parent) {
         int left = leftChildIdx(parent);
         int right = rightChildIdx(parent);
@@ -70,26 +99,6 @@ public class IntHeap {
             }
         }
         return size;
-    }
-
-    public void add(int val) {
-        growIfNeeded();
-        int idx = size;
-        data[size++] = val;
-        while (idx > 0) {
-            idx = swapUp(idx);
-        }
-    }
-
-    private int swapUp(int ci) {
-        int pi = parentIdx(ci);
-        int[] x = data;
-        if (x[ci] < x[pi]) {
-            swap(x, ci, pi);
-            return pi;
-        } else {
-            return -1;
-        }
     }
 
     private int leftChildIdx(int idx) {
