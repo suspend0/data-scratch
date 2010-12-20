@@ -2,6 +2,7 @@ package ca.hullabaloo.data.ring;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * A single-producer, multiple consumer ring buffer based on the description given in this talk
@@ -13,11 +14,12 @@ public class RingBuffer<E> {
     private final Producer producer = new Producer();
     private final Consumers consumers = new Consumers();
 
-    private static void sleepAndYield(int loop) throws InterruptedException {
+    private static void sleepAndYield(int loop, Random rand) throws InterruptedException {
         if (loop == 0) {
             Thread.yield();
         } else {
-            Thread.sleep(loop * 10);
+            int time = ((1 << loop)-1)/2 * (rand.nextBoolean() ? 1 : 10);
+            Thread.sleep(time);
         }
     }
 
@@ -66,13 +68,14 @@ public class RingBuffer<E> {
     }
 
     public final class Producer {
+        private final Random rand = new Random();
         private volatile long lastProduced = STARTING_INDEX;
         private int sleeps = 0;
 
         public boolean putAll(E[] items) throws InterruptedException {
             for (int i = 0; i < 100; i++) {
                 if (items.length > available()) {
-                    sleepAndYield(i);
+                    sleepAndYield(i,rand);
                 } else {
                     final long lastProduced = this.lastProduced;
                     int nextSlot = slot(lastProduced + 1);
@@ -93,7 +96,7 @@ public class RingBuffer<E> {
             for (int i = 0; i < 10; i++) {
                 int consumedSlot = slot(lastConsumed());
                 if (nextSlot == consumedSlot) {
-                    sleepAndYield(i);
+                    sleepAndYield(i,rand);
                     sleeps++;
                 } else {
                     array[nextSlot] = item;
@@ -124,6 +127,7 @@ public class RingBuffer<E> {
     }
 
     public final class Consumer {
+        private final Random rand = new Random();
         private volatile long lastConsumed = STARTING_INDEX;
         private int sleeps = 0;
 
@@ -132,7 +136,7 @@ public class RingBuffer<E> {
             int producedSlot = slot(produced());
             int i = 0;
             while (consumedSlot == producedSlot) {
-                sleepAndYield(i++);
+                sleepAndYield(i++,rand);
                 sleeps++;
                 producedSlot = slot(produced());
             }
@@ -146,7 +150,7 @@ public class RingBuffer<E> {
             int producedSlot = slot(produced());
             int i = 0;
             while (consumedSlot == producedSlot) {
-                sleepAndYield(i++);
+                sleepAndYield(i++,rand);
                 sleeps++;
                 producedSlot = slot(produced());
             }

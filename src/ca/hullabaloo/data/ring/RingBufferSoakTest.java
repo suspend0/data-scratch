@@ -22,8 +22,9 @@ public class RingBufferSoakTest extends TestCase {
             public R call() throws Exception {
                 Thread.currentThread().setName(name);
                 RingBuffer<Integer>.Consumer c = rb.newConsumer();
-                assertEquals(0, c.get().intValue());
                 R data = new R().start();
+                assertEquals(0, c.get().intValue());
+                data.ops++;
                 for (int i = 1; i < RUN_SIZE; i++) {
                     data.ops++;
                     assertEquals(i, c.get().intValue());
@@ -96,6 +97,7 @@ public class RingBufferSoakTest extends TestCase {
                 RingBuffer<Integer>.Consumer c = rb.newConsumer();
                 Integer[] buffer = new Integer[500];
                 assertEquals(0, c.get().intValue());
+                result.ops++;
                 result.elapsed = System.nanoTime();
                 for (int i = 1; i < RUN_SIZE;) {
                     int got = c.get(buffer);
