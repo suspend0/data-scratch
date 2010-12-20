@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 /**
  * Binary heap for integers
+ *
+ * (This isn't production code; I'm just playing around)
  */
 public class IntHeap {
     private static final int INITIAL_CAPACITY = 8;
